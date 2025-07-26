@@ -1,5 +1,5 @@
-import Dashboard from './pages/Dashboard';
-import Register from './pages/Register';
+import Dashboard from '../../src/pages/Dashboard';
+import Register from '../../src/pages/Register';
 
 function App() {
   return (
