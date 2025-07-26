@@ -1,25 +1,24 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Students from './pages/Students';
+import Teachers from './pages/Teachers';
+import Grades from './pages/Grades';
+import Attendance from './pages/Attendance';
 import Dashboard from '../../src/pages/Dashboard';
 import Register from '../../src/pages/Register';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-4 text-center text-blue-700">
-        Excellence & Development School Admin Dashboard
-      </h1>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">Dashboard</h2>
-          <Dashboard />
-        </div>
-
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">Register</h2>
-          <Register />
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/students" element={<Students />} />
+        <Route path="/teachers" element={<Teachers />} />
+        <Route path="/grades" element={<Grades />} />
+        <Route path="/attendance" element={<Attendance />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </Router>
+    
   );
 }
 
