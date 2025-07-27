@@ -1,6 +1,13 @@
 // src/pages/Teachers.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  fetchTeachers,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher,
+} from "../services/teacherService";
+
 
 const Teachers = () => {
   const [teachers, setTeachers] = useState([]);
