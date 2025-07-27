@@ -1,20 +1,27 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import AppRoutes from './routes';
-import Navbar from './components/Navbar';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
+import Dashboard from './pages/Dashboard';
+import Students from './pages/Students';
+import Teachers from './pages/Teachers';
+import Grades from './pages/Grades';
+import Attendance from './pages/Attendance';
 
-const App = () => {
+export default function App() {
   return (
     <Router>
       <div className="flex">
         <Sidebar />
-        <main className="flex-1">
-          <Navbar />
-          <AppRoutes />
-        </main>
+        <div className="flex-grow p-4 bg-gray-900 text-white min-h-screen">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/teachers" element={<Teachers />} />
+            <Route path="/grades" element={<Grades />} />
+            <Route path="/attendance" element={<Attendance />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
-};
-
-export default App;
+}
