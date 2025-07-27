@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchTeachers, createTeacher } from '../api/teacherApi';
+import { fetchTeachers, createTeacher } from '../../../src/api/teacherApi';
 
 export default function TeachersPage() {
   const [teachers, setTeachers] = useState([]);
