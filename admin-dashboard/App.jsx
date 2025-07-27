@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Students from './pages/Students';
-import Teachers from './src/pages/Teachers';
+import Teachers from '../src/pages/Teachers';
 import Grades from './pages/Grades';
 import Attendance from './pages/Attendance';
-import Dashboard from './src/pages/Dashboard';
-import Register from './src/pages/Register';
-
+import Dashboard from '../src/pages/Dashboard';
+import Register from '../src/pages/Register';
+import Teachers from "./pages/Teachers";
 function App() {
   return (
     <Router>
