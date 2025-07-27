@@ -6,7 +6,7 @@ const Sidebar = () => {
       <ul className="space-y-4">
         <li><Link to="/">Dashboard</Link></li>
         <li><Link to="/students">Manage Students</Link></li>
-        <li><Link to="/teachers">Manage Teachers</Link></li>
+        <li><Link to="/teachers" className="block px-4 py-2 hover:bg-gray-700">Manage Teachers</Link></li>
         <li><Link to="/grades">Manage Grades</Link></li>
         <li><Link to="/attendance">Attendance</Link></li>
       </ul>

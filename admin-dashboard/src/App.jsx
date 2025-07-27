@@ -16,6 +16,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/students" element={<Students />} />
+            <Route index element={<Navigate to="/teachers" />} />
+            <Route path="/" element={<DashboardLayout />}></Route>
             <Route path="/teachers" element={<Teachers />} />
             <Route path="/grades" element={<Grades />} />
             <Route path="/attendance" element={<Attendance />} />
