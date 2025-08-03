@@ -1,23 +1,22 @@
 // src/pages/Students.jsx
-import React, { useState, useEffect } from "react";
-import API from "../services/api"; // Use centralized API instance
+import React, { useState, useEffect } from 'react';
+import {
+  fetchStudents,
+  createStudent,
+  deleteStudent,
+} from '../api/studentsApi';
 
-const Students = () => {
+export default function Students() {
   const [students, setStudents] = useState([]);
-  const [form, setForm] = useState({ name: "", classLevel: "" });
+  const [form, setForm] = useState({ name: '', classLevel: '' });
 
-  // Fetch students on component mount
   useEffect(() => {
-    fetchStudents();
+    loadStudents();
   }, []);
 
-  const fetchStudents = async () => {
-    try {
-      const response = await API.get("students/");
-      setStudents(response.data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
+  const loadStudents = async () => {
+    const data = await fetchStudents();
+    setStudents(data);
   };
 
   const handleChange = (e) => {
@@ -26,24 +25,14 @@ const Students = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await API.post("students/", form);
-      setStudents([...students, response.data]);
-      setForm({ name: "", classLevel: "" });
-    } catch (error) {
-      console.error("Error adding student:", error);
-    }
+    await createStudent(form);
+    setForm({ name: '', classLevel: '' });
+    loadStudents();
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this student?")) return;
-
-    try {
-      await API.delete(`students/${id}/`);
-      setStudents(students.filter((student) => student.id !== id));
-    } catch (error) {
-      console.error("Error deleting student:", error);
-    }
+    await deleteStudent(id);
+    loadStudents();
   };
 
   return (
@@ -51,28 +40,24 @@ const Students = () => {
       <h1 className="text-2xl font-bold mb-4">Students Management</h1>
 
       <form onSubmit={handleSubmit} className="mb-6 bg-white shadow rounded p-4">
-        <div className="mb-4">
-          <label className="block text-gray-700">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Class Level</label>
-          <input
-            type="text"
-            name="classLevel"
-            value={form.classLevel}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-            required
-          />
-        </div>
+        <input
+          type="text"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Name"
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+          required
+        />
+        <input
+          type="text"
+          name="classLevel"
+          value={form.classLevel}
+          onChange={handleChange}
+          placeholder="Class Level"
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+          required
+        />
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           Add Student
         </button>
@@ -81,19 +66,19 @@ const Students = () => {
       <table className="w-full table-auto border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-4 py-2">#</th>
-            <th className="border border-gray-300 px-4 py-2">Name</th>
-            <th className="border border-gray-300 px-4 py-2">Class Level</th>
-            <th className="border border-gray-300 px-4 py-2">Actions</th>
+            <th className="border px-4 py-2">#</th>
+            <th className="border px-4 py-2">Name</th>
+            <th className="border px-4 py-2">Class Level</th>
+            <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           {students.map((student, index) => (
             <tr key={student.id} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-              <td className="border border-gray-300 px-4 py-2">{student.name}</td>
-              <td className="border border-gray-300 px-4 py-2">{student.classLevel}</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
+              <td className="border px-4 py-2">{index + 1}</td>
+              <td className="border px-4 py-2">{student.name}</td>
+              <td className="border px-4 py-2">{student.classLevel}</td>
+              <td className="border px-4 py-2 text-center">
                 <button
                   onClick={() => handleDelete(student.id)}
                   className="text-red-600 hover:underline"
@@ -107,6 +92,4 @@ const Students = () => {
       </table>
     </div>
   );
-};
-
-export default Students;
+}

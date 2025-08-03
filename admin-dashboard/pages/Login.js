@@ -1,22 +1,25 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../services/api';
+import API from '../services/api'; // Axios instance with baseURL
 
-function Login() {
+export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const loginUser = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const res = await API.post('auth/token/', { email, password });
       localStorage.setItem('token', res.data.access);
-      alert('Login successful!');
-      navigate('/'); // Redirect to Dashboard
-    } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      if (onLogin) onLogin(res.data.access); // Optional callback
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -24,35 +27,38 @@ function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
         onSubmit={loginUser}
-        className="bg-white p-6 rounded shadow w-96 space-y-4"
+        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
       >
-        <h1 className="text-2xl font-bold text-center text-gray-700">Admin Login</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
+          Admin Login
+        </h1>
+
+        {error && <p className="text-red-600 text-center mb-3">{error}</p>}
 
         <input
           type="email"
-          placeholder="Email"
-          className="w-full border border-gray-300 rounded px-3 py-2"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
           required
         />
-
         <input
           type="password"
-          placeholder="Password"
-          className="w-full border border-gray-300 rounded px-3 py-2"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
           required
         />
-
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
     </div>
   );
 }
-
-export default Login;
