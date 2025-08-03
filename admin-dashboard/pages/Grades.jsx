@@ -1,23 +1,43 @@
 // src/pages/Grades.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import API from "../services/api";
 
 const Grades = () => {
   const [grades, setGrades] = useState([]);
-  const [form, setForm] = useState({ student: '', subject: '', score: '' });
+  const [form, setForm] = useState({ student: "", subject: "", score: "" });
+
+  const fetchGrades = async () => {
+    try {
+      const res = await API.get("grades/");
+      setGrades(res.data);
+    } catch (error) {
+      console.error("Error fetching grades:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGrades();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setGrades([...grades, form]);
-    setForm({ student: '', subject: '', score: '' });
+    try {
+      await API.post("grades/", form);
+      fetchGrades();
+      setForm({ student: "", subject: "", score: "" });
+    } catch (error) {
+      console.error("Error adding grade:", error);
+    }
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Grades Management</h1>
+
       <form onSubmit={handleSubmit} className="mb-6 bg-white shadow rounded p-4">
         <div className="mb-4">
           <label className="block text-gray-700">Student</label>
@@ -52,7 +72,9 @@ const Grades = () => {
             required
           />
         </div>
-        <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded">Add Grade</button>
+        <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded">
+          Add Grade
+        </button>
       </form>
 
       <table className="w-full table-auto border-collapse border border-gray-300">
@@ -66,7 +88,7 @@ const Grades = () => {
         </thead>
         <tbody>
           {grades.map((grade, index) => (
-            <tr key={index} className="hover:bg-gray-50">
+            <tr key={grade.id} className="hover:bg-gray-50">
               <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
               <td className="border border-gray-300 px-4 py-2">{grade.student}</td>
               <td className="border border-gray-300 px-4 py-2">{grade.subject}</td>
@@ -78,6 +100,5 @@ const Grades = () => {
     </div>
   );
 };
-
 
 export default Grades;

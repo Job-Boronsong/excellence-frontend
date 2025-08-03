@@ -1,23 +1,43 @@
 // src/pages/Attendance.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import API from "../services/api";
 
 const Attendance = () => {
   const [records, setRecords] = useState([]);
-  const [form, setForm] = useState({ student: '', date: '', status: 'Present' });
+  const [form, setForm] = useState({ student: "", date: "", status: "Present" });
+
+  const fetchAttendance = async () => {
+    try {
+      const res = await API.get("attendance/");
+      setRecords(res.data);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setRecords([...records, form]);
-    setForm({ student: '', date: '', status: 'Present' });
+    try {
+      await API.post("attendance/", form);
+      fetchAttendance();
+      setForm({ student: "", date: "", status: "Present" });
+    } catch (error) {
+      console.error("Error adding attendance:", error);
+    }
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Attendance Management</h1>
+
       <form onSubmit={handleSubmit} className="mb-6 bg-white shadow rounded p-4">
         <div className="mb-4">
           <label className="block text-gray-700">Student</label>
@@ -53,7 +73,9 @@ const Attendance = () => {
             <option value="Absent">Absent</option>
           </select>
         </div>
-        <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded">Add Record</button>
+        <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded">
+          Add Record
+        </button>
       </form>
 
       <table className="w-full table-auto border-collapse border border-gray-300">
@@ -67,7 +89,7 @@ const Attendance = () => {
         </thead>
         <tbody>
           {records.map((rec, index) => (
-            <tr key={index} className="hover:bg-gray-50">
+            <tr key={rec.id} className="hover:bg-gray-50">
               <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
               <td className="border border-gray-300 px-4 py-2">{rec.student}</td>
               <td className="border border-gray-300 px-4 py-2">{rec.date}</td>

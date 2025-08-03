@@ -1,5 +1,6 @@
+// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../services/api";
 
 const Dashboard = () => {
   const [students, setStudents] = useState([]);
@@ -8,15 +9,31 @@ const Dashboard = () => {
   const [grades, setGrades] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/students/").then(res => setStudents(res.data));
-    axios.get("http://localhost:8000/api/teachers/").then(res => setTeachers(res.data));
-    axios.get("http://localhost:8000/api/attendance/").then(res => setAttendance(res.data));
-    axios.get("http://localhost:8000/api/grades/").then(res => setGrades(res.data));
+    const fetchData = async () => {
+      try {
+        const [studentsRes, teachersRes, attendanceRes, gradesRes] = await Promise.all([
+          API.get("students/"),
+          API.get("teachers/"),
+          API.get("attendance/"),
+          API.get("grades/")
+        ]);
+
+        setStudents(studentsRes.data);
+        setTeachers(teachersRes.data);
+        setAttendance(attendanceRes.data);
+        setGrades(gradesRes.data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const averageGrade = grades.length > 0
-    ? (grades.reduce((acc, g) => acc + parseFloat(g.score), 0) / grades.length).toFixed(2)
-    : "N/A";
+  const averageGrade =
+    grades.length > 0
+      ? (grades.reduce((acc, g) => acc + parseFloat(g.score), 0) / grades.length).toFixed(2)
+      : "N/A";
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

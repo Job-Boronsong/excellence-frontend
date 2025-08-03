@@ -1,10 +1,10 @@
 // src/pages/Students.jsx
-import React, { useState, useEffect } from 'react';
-import axios from '../api/axios'; // Assumes you created this config as shown earlier
+import React, { useState, useEffect } from "react";
+import API from "../services/api"; // Use centralized API instance
 
 const Students = () => {
   const [students, setStudents] = useState([]);
-  const [form, setForm] = useState({ name: '', classLevel: '' });
+  const [form, setForm] = useState({ name: "", classLevel: "" });
 
   // Fetch students on component mount
   useEffect(() => {
@@ -13,10 +13,10 @@ const Students = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get('students/');
+      const response = await API.get("students/");
       setStudents(response.data);
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error("Error fetching students:", error);
     }
   };
 
@@ -27,20 +27,22 @@ const Students = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('students/', form);
+      const response = await API.post("students/", form);
       setStudents([...students, response.data]);
-      setForm({ name: '', classLevel: '' });
+      setForm({ name: "", classLevel: "" });
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error("Error adding student:", error);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this student?")) return;
+
     try {
-      await axios.delete(`students/${id}/`);
+      await API.delete(`students/${id}/`);
       setStudents(students.filter((student) => student.id !== id));
     } catch (error) {
-      console.error('Error deleting student:', error);
+      console.error("Error deleting student:", error);
     }
   };
 
@@ -71,7 +73,9 @@ const Students = () => {
             required
           />
         </div>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Add Student</button>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+          Add Student
+        </button>
       </form>
 
       <table className="w-full table-auto border-collapse border border-gray-300">

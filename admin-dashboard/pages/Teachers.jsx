@@ -1,21 +1,21 @@
 // src/pages/Teachers.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import API from "../services/api"; // Use centralized Axios instance
 
 const Teachers = () => {
   const [teachers, setTeachers] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
+    name: "",
+    email: "",
+    subject: "",
   });
 
   const fetchTeachers = async () => {
     try {
-      const res = await axios.get('/api/teachers/');
+      const res = await API.get("teachers/");
       setTeachers(res.data);
     } catch (error) {
-      console.error('Error fetching teachers:', error);
+      console.error("Error fetching teachers:", error);
     }
   };
 
@@ -30,22 +30,22 @@ const Teachers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/teachers/', formData);
+      await API.post("teachers/", formData);
       fetchTeachers();
-      setFormData({ name: '', email: '', subject: '' });
+      setFormData({ name: "", email: "", subject: "" });
     } catch (error) {
-      console.error('Error adding teacher:', error);
+      console.error("Error adding teacher:", error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this teacher?')) {
-      try {
-        await axios.delete(`/api/teachers/${id}/`);
-        fetchTeachers();
-      } catch (error) {
-        console.error('Error deleting teacher:', error);
-      }
+    if (!window.confirm("Are you sure you want to delete this teacher?")) return;
+
+    try {
+      await API.delete(`teachers/${id}/`);
+      fetchTeachers();
+    } catch (error) {
+      console.error("Error deleting teacher:", error);
     }
   };
 
@@ -53,9 +53,10 @@ const Teachers = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Manage Teachers</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4 mb-8 bg-white shadow p-4 rounded">
         <input
-          className="form-input border p-2 w-full rounded"
+          className="border p-2 w-full rounded"
           name="name"
           value={formData.name}
           onChange={handleChange}
@@ -63,7 +64,7 @@ const Teachers = () => {
           required
         />
         <input
-          className="form-input border p-2 w-full rounded"
+          className="border p-2 w-full rounded"
           name="email"
           type="email"
           value={formData.email}
@@ -72,24 +73,33 @@ const Teachers = () => {
           required
         />
         <input
-          className="form-input border p-2 w-full rounded"
+          className="border p-2 w-full rounded"
           name="subject"
           value={formData.subject}
           onChange={handleChange}
           placeholder="Subject"
           required
         />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Add Teacher
         </button>
       </form>
 
+      {/* List of Teachers */}
       <div className="grid gap-4">
         {teachers.map((teacher) => (
-          <div key={teacher.id} className="border p-4 rounded shadow flex justify-between items-center">
+          <div
+            key={teacher.id}
+            className="border p-4 rounded shadow flex justify-between items-center"
+          >
             <div>
               <h3 className="text-lg font-semibold">{teacher.name}</h3>
-              <p className="text-sm text-gray-600">{teacher.email} • {teacher.subject}</p>
+              <p className="text-sm text-gray-600">
+                {teacher.email} • {teacher.subject}
+              </p>
             </div>
             <button
               onClick={() => handleDelete(teacher.id)}
