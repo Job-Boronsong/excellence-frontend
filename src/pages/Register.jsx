@@ -1,96 +1,108 @@
 // src/pages/Register.jsx
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
-function Register() {
-  const [formData, setFormData] = useState({
-    username: "",
+export default function Register() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
     email: "",
     password: "",
+    password2: "",
+    full_name: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
-  const navigate = useNavigate();
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-
+    setErr("");
+    if (form.password !== form.password2) {
+      setErr("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      await api.post("auth/register/", {
+        email: form.email,
+        password: form.password,
+        full_name: form.full_name,
       });
-
-      if (response.ok) {
-        alert("Registration successful! Please log in.");
-        navigate("/");
-      } else {
-        alert("Registration failed. Try again.");
-      }
+      navigate("/login", { replace: true });
     } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong.");
+      setErr(
+        error?.response?.data?.detail || "Registration failed. Try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-96"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
-
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 border rounded-lg"
-          required
-        />
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 border rounded-lg"
-          required
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="w-full p-3 mb-6 border rounded-lg"
-          required
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
-        >
-          Register
-        </button>
-
-        <p className="text-sm text-center mt-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <div className="w-full max-w-md bg-white rounded-xl shadow p-6">
+        <h1 className="text-2xl font-bold mb-6 text-center">Create account</h1>
+        {err && <div className="mb-3 text-red-600 text-sm">{err}</div>}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm mb-1">Full name</label>
+            <input
+              name="full_name"
+              value={form.full_name}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Email</label>
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Password</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Confirm password</label>
+            <input
+              name="password2"
+              type="password"
+              value={form.password2}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <button
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          >
+            {loading ? "Creating..." : "Register"}
+          </button>
+        </form>
+        <p className="mt-4 text-sm text-center">
           Already have an account?{" "}
-          <Link to="/" className="text-blue-500 hover:underline">
-            Login
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Sign in
           </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
-
-export default Register;

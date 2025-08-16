@@ -1,11 +1,11 @@
+// src/api.js
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api", // 👈 change to your Django base URL
-  withCredentials: true,
+  baseURL: "http://127.0.0.1:8000/api", // Django API root
 });
 
-// Attach token if available
+// Add JWT to headers
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

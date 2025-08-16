@@ -1,51 +1,87 @@
-import { useState } from "react";
-import API from "../api";
+// src/pages/Login.jsx
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api, { API_BASE_URL } from "../api/axios";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
-  const handleSubmit = async (e) => {
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const onSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErr("");
     try {
-      const res = await API.post("/login/", { username, password });
-      localStorage.setItem("token", res.data.access); // store JWT
-      window.location.href = "/students"; // redirect to dashboard
-    } catch (err) {
-      setError("Invalid credentials");
+      const { data } = await api.post("auth/token/", {
+        email: form.email,
+        password: form.password,
+      });
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh || "");
+      navigate("/", { replace: true });
+    } catch (error) {
+      setErr(
+        error?.response?.data?.detail ||
+          "Login failed. Check credentials and try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 shadow rounded w-80"
-      >
-        <h2 className="text-xl font-bold mb-4">Admin Login</h2>
-        {error && <p className="text-red-500">{error}</p>}
-        <input
-          type="text"
-          placeholder="Username"
-          className="w-full border p-2 mb-2"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-4"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded"
-        >
-          Login
-        </button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <div className="w-full max-w-md bg-white rounded-xl shadow p-6">
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign in</h1>
+        {err && <div className="mb-3 text-red-600 text-sm">{err}</div>}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm mb-1">Email</label>
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              placeholder="you@example.com"
+              autoComplete="username"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Password</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={onChange}
+              className="w-full border rounded px-3 py-2"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+          <button
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+        <p className="mt-4 text-sm text-center">
+          No account?{" "}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Register
+          </Link>
+        </p>
+        <p className="mt-4 text-xs text-gray-500 text-center">
+          API base: {API_BASE_URL}
+        </p>
+      </div>
     </div>
   );
 }
