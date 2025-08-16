@@ -1,22 +1,62 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+// Configure axios base URL (you can also move this to a separate axios.js file)
+axios.defaults.baseURL = "http://localhost:8000/api/";
+
 const Dashboard = () => {
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [grades, setGrades] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/students/").then(res => setStudents(res.data));
-    axios.get("http://localhost:8000/api/teachers/").then(res => setTeachers(res.data));
-    axios.get("http://localhost:8000/api/attendance/").then(res => setAttendance(res.data));
-    axios.get("http://localhost:8000/api/grades/").then(res => setGrades(res.data));
+    const fetchData = async () => {
+      try {
+        const [studentsRes, teachersRes, attendanceRes, gradesRes] = await Promise.all([
+          axios.get("students/"),
+          axios.get("teachers/"),
+          axios.get("attendance/"),
+          axios.get("grades/")
+        ]);
+
+        setStudents(studentsRes.data);
+        setTeachers(teachersRes.data);
+        setAttendance(attendanceRes.data);
+        setGrades(gradesRes.data);
+      } catch (err) {
+        setError("Failed to load dashboard data. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const averageGrade = grades.length > 0
-    ? (grades.reduce((acc, g) => acc + parseFloat(g.score), 0) / grades.length).toFixed(2)
-    : "N/A";
+  const averageGrade =
+    grades.length > 0
+      ? (grades.reduce((acc, g) => acc + parseFloat(g.score), 0) / grades.length).toFixed(2)
+      : "N/A";
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-xl text-gray-600">
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen text-xl text-red-600">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
